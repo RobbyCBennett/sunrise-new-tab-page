@@ -239,7 +239,6 @@ async function displayBookmarks(currentFolderId)
 	if (element = document.getElementById('favorites'))
 		element.innerHTML = '';
 
-	/** @ts-ignore @type {{id: string, title: string, url: string | undefined}[]} */
 	const currentFolder = await chrome.bookmarks.getChildren(currentFolderId);
 
 	// Each link or folder
@@ -331,7 +330,6 @@ async function displayBookmarks(currentFolderId)
 	}
 	// Set up the title and back button
 	else {
-		/** @ts-ignore @type {{title: string, parentId: string | undefined}[]} */
 		const currentFolderNodeResults = await chrome.bookmarks.get(currentFolderId);
 		if (currentFolderNodeResults.length !== 0) {
 			const currentFolderNode = currentFolderNodeResults[0];
@@ -585,7 +583,6 @@ function onClickBack(_event)
  */
 function onClickSettings(_event)
 {
-	// @ts-ignore
 	chrome.tabs.create({'url': '/options/options.html'});
 }
 
@@ -602,7 +599,6 @@ function onHashChange(_event)
 async function setOptions()
 {
 	// Get user options into the result and remember the unsaved options
-	/** @ts-ignore @type {{}} */
 	const userOptions = await chrome.storage.local.get();
 	const unsavedOptions = {};
 	let hasUnsavedOptions = false;
@@ -620,7 +616,6 @@ async function setOptions()
 
 	// Save unsaved options
 	if (hasUnsavedOptions) {
-		// @ts-ignore
 		chrome.storage.local.set(unsavedOptions);
 	}
 }
