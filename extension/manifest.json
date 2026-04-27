@@ -20,7 +20,7 @@
 			}
 		}
 	},
-	"version": "3.3",
+	"version": "3.4",
 	"action": {
 		"default_icon": "/assets/icon128.png",
 		"default_popup": "/options/options.html#popup"
