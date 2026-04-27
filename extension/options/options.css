@@ -214,6 +214,10 @@ input[type='color'] {
 input[type='color']::-webkit-color-swatch-wrapper {
 	padding: 0;
 }
+input[type='color']::-moz-color-swatch {
+	border: none;
+	border-radius: 50%;
+}
 input[type='color']::-webkit-color-swatch {
 	border: none;
 	border-radius: 50%;
@@ -232,6 +236,9 @@ input[type='file'] {
 	background-position: center;
     background-size: cover;
 	background-repeat: no-repeat;
+}
+input[type='file']::file-selector-button {
+	display: none;
 }
 input[type='file']::-webkit-file-upload-button {
 	display: none;
@@ -293,13 +300,29 @@ input[type='range'] {
 	cursor: pointer;
 	margin: 0 var(--margin);
 }
-input[type='range']::-webkit-slider-thumb {
+input[type='range']::-moz-range-thumb {
 	appearance: none;
 	width: var(--circle);
 	height: var(--circle);
 	border-radius: var(--circle);
 	background-color: var(--color);
 	margin-top: calc(var(--circle) * -0.125);
+	border: none;
+}
+input[type='range']::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	width: var(--circle);
+	height: var(--circle);
+	border-radius: var(--circle);
+	background-color: var(--color);
+	margin-top: calc(var(--circle) * -0.125);
+	border: none;
+}
+input[type='range']::-moz-range-track {
+	cursor: pointer;
+	height: calc(var(--circle) * 0.75);
+	border-radius: var(--circle);
+	background-color: var(--optionActive);
 }
 input[type='range']::-webkit-slider-runnable-track {
 	cursor: pointer;
@@ -318,6 +341,7 @@ input[type='range']::-webkit-slider-runnable-track {
 	width: var(--number);
 	text-align: right;
 	background-color: transparent;
+	appearance: textfield;
 }
 .rangeNumberUnit {
 	padding-left: calc(var(--numberUnit) * 0.5);
@@ -341,6 +365,7 @@ textarea {
 	width: calc(100% - var(--margin) * 2);
 	resize: none;
 	padding: calc(var(--margin) * 0.75) var(--margin);
+	tab-size: 2;
 }
 
 

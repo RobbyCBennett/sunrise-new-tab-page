@@ -37,9 +37,19 @@ if (location.hash != '#popup') {
 	bigOptionsLink.className = 'hidden';
 }
 
+// Link: ratings
+if (typeof browser !== 'undefined') {
+	document.getElementById('rate').remove();
+}
+
 
 
 // Options
+
+// Remove "Allow bookmarks menu" from Chromium because it's only in Firefox
+if (typeof browser === 'undefined') {
+	document.getElementById('allowBookmarksMenu').remove();
+}
 
 // Load all options
 async function loadOptions() {
@@ -233,7 +243,7 @@ for (const range of document.querySelectorAll('input[type="range"]')) {
 		container.appendChild(unitContainer);
 
 		const unitElement = document.createElement(unitTagName);
-		unitElement.innerHTML = unit;
+		unitElement.innerText = unit;
 		unitContainer.appendChild(unitElement);
 	}
 
@@ -332,7 +342,7 @@ function selectOption(e, element=null, value=null) {
 	const target = e.target;
 
 	// Get select, option, and autoSaveDelay
-	let select, option, autoSaveDelay, innerHTML;
+	let select, option, autoSaveDelay;
 	if (e.type == 'mousedown') {
 		// Get select from id of target parent minus 'Options'
 		select = document.getElementById(target.parentElement.id.slice(0, -7));
@@ -405,7 +415,7 @@ function selectOption(e, element=null, value=null) {
 
 	// Select option
 	select.value = option.value;
-	select.innerHTML = option.innerHTML;
+	select.innerText = option.innerText;
 	option.classList.add('selected');
 
 	// Save option if there was an event

@@ -2,9 +2,14 @@
 'use strict';
 
 
-const SVG_FOLDER = '<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 24 24" xml:space="preserve"><path class="st0" d="M9.6,2.4H2.4C1.1,2.4,0,3.5,0,4.8l0,14.4c0,1.3,1.1,2.4,2.4,2.4h19.2c1.3,0,2.4-1.1,2.4-2.4v-12 c0-1.3-1.1-2.4-2.4-2.4H12L9.6,2.4z"/></svg>';
+/** @ts-ignore */
+const IS_FIREFOX = typeof browser !== 'undefined';
 
-const SVG_LINK = '<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 24 24" xml:space="preserve"><path class="st0" d="M12,0C5.4,0,0,5.4,0,12s5.4,12,12,12s12-5.4,12-12S18.6,0,12,0z M10.8,21.5c-4.7-0.6-8.4-4.6-8.4-9.5 c0-0.7,0.1-1.5,0.3-2.1l5.7,5.7v1.2c0,1.3,1.1,2.4,2.4,2.4V21.5z M19.1,18.5c-0.3-1-1.2-1.7-2.3-1.7h-1.2v-3.6 c0-0.7-0.5-1.2-1.2-1.2H7.2V9.6h2.4c0.7,0,1.2-0.5,1.2-1.2V6h2.4c1.3,0,2.4-1.1,2.4-2.4V3.1c3.5,1.4,6,4.9,6,8.9 C21.6,14.5,20.6,16.8,19.1,18.5z"/></svg>';
+const ID_BOOKMARKS_MENU = 'menu________';
+const ID_BOOKMARKS_BAR = IS_FIREFOX ? 'toolbar_____' : '1';
+const ID_OTHER_BOOKMARKS = IS_FIREFOX ? 'unfiled_____' : '2';
+const ID_MOBILE_BOOKMARKS = IS_FIREFOX ? 'mobile______' : '3';
+const ID_ROOT_BOOKMARKS = IS_FIREFOX ? 'root________' : '0';
 
 const options = {
 	// Theme
@@ -35,6 +40,7 @@ const options = {
 	showIcons: true,
 	showLabels: true,
 	bookmarkAlignment: 'left',
+	allowBookmarksMenu: false,
 	allowBookmarksBar: true,
 	allowOtherBookmarks: false,
 	allowMobileBookmarks: false,
@@ -147,20 +153,33 @@ async function displayPage()
 
 	// Advanced
 	if (element = document.getElementById('customCSS'))
-		element.innerHTML = options.customCSS;
+		element.innerText = options.customCSS;
 
 	// Display the rest of the UI
-	drawTimeEverySecond(options.militaryTime);
+	if (options.showTime || options.showWeekday || options.showDate) {
+		drawTime();
+	}
 	displayBookmarks(getFolderIdFromHash());
 }
 
 
-/**
- * @param {boolean} militaryTime
- */
-function drawTime(militaryTime)
+function drawTime()
 {
 	const date = new Date();
+
+	let delay;
+	if (options.showTime) {
+		if (options.showSeconds) {
+			delay = 1000 - date.getMilliseconds();
+		}
+		else {
+			delay = 60000 - date.getMilliseconds() - date.getSeconds() * 1000;
+		}
+	}
+	else {
+		delay = 86400000 - date.getMilliseconds() - date.getSeconds() * 1000 - date.getMinutes() * 60000 - date.getHours() * 3600000;
+	}
+	setTimeout(drawTime, delay);
 
 	let hour = date.getHours().toString();
 	let minute = date.getMinutes().toString();
@@ -168,7 +187,7 @@ function drawTime(militaryTime)
 	let amPM = '';
 
 	// Set hour
-	if (militaryTime) {
+	if (options.militaryTime) {
 		if (date.getHours() < 10)
 			hour = '0' + date.getHours().toString();
 	}
@@ -265,6 +284,11 @@ async function displayBookmarks(currentFolderId)
 
 		// Link
 		if (linkOrFolder.url !== undefined) {
+			// Skip the Firefox "Recent Tags" bookmark which is not a web URL
+			if (linkOrFolder.url.startsWith('place:')) {
+				continue;
+			}
+
 			// Favorite container
 			const favorite = document.createElement('div');
 			favorite.dataset.col = colI.toString();
@@ -278,21 +302,22 @@ async function displayBookmarks(currentFolderId)
 			anchor.href = linkOrFolder.url;
 			anchor.dataset.col = colI.toString();
 			anchor.dataset.row = rowI.toString();
-			anchor.innerHTML = SVG_LINK;
+			anchor.innerHTML = '<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 24 24" xml:space="preserve"><path class="st0" d="M12,0C5.4,0,0,5.4,0,12s5.4,12,12,12s12-5.4,12-12S18.6,0,12,0z M10.8,21.5c-4.7-0.6-8.4-4.6-8.4-9.5 c0-0.7,0.1-1.5,0.3-2.1l5.7,5.7v1.2c0,1.3,1.1,2.4,2.4,2.4V21.5z M19.1,18.5c-0.3-1-1.2-1.7-2.3-1.7h-1.2v-3.6 c0-0.7-0.5-1.2-1.2-1.2H7.2V9.6h2.4c0.7,0,1.2-0.5,1.2-1.2V6h2.4c1.3,0,2.4-1.1,2.4-2.4V3.1c3.5,1.4,6,4.9,6,8.9 C21.6,14.5,20.6,16.8,19.1,18.5z"/></svg>';
 			favorite.appendChild(anchor);
 
 			// Text
 			const paragraph = document.createElement('p');
-			paragraph.innerHTML = linkOrFolder.title;
+			paragraph.innerText = linkOrFolder.title;
 			anchor.appendChild(paragraph);
 		}
 		// Folder
 		else {
 			// At the root, skip certain folders
-			if (currentFolderId === '0')
-				if ((linkOrFolder.id === '1' && !options.allowBookmarksBar)
-				|| (linkOrFolder.id === '2' && !options.allowOtherBookmarks)
-				|| (linkOrFolder.id === '3' && !options.allowMobileBookmarks))
+			if (currentFolderId === ID_ROOT_BOOKMARKS)
+				if ((linkOrFolder.id === ID_BOOKMARKS_MENU && !options.allowBookmarksMenu)
+				|| (linkOrFolder.id === ID_BOOKMARKS_BAR && !options.allowBookmarksBar)
+				|| (linkOrFolder.id === ID_OTHER_BOOKMARKS && !options.allowOtherBookmarks)
+				|| (linkOrFolder.id === ID_MOBILE_BOOKMARKS && !options.allowMobileBookmarks))
 					continue;
 
 			// Favorite container
@@ -306,12 +331,12 @@ async function displayBookmarks(currentFolderId)
 			anchor.href = `#${linkOrFolder.id}`;
 			anchor.dataset.col = colI.toString();
 			anchor.dataset.row = rowI.toString();
-			anchor.innerHTML = SVG_FOLDER;
+			anchor.innerHTML = '<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 24 24" xml:space="preserve"><path class="st0" d="M9.6,2.4H2.4C1.1,2.4,0,3.5,0,4.8l0,14.4c0,1.3,1.1,2.4,2.4,2.4h19.2c1.3,0,2.4-1.1,2.4-2.4v-12 c0-1.3-1.1-2.4-2.4-2.4H12L9.6,2.4z"/></svg>';
 			favorite.appendChild(anchor);
 
 			// Text
 			const paragraph = document.createElement('p');
-			paragraph.innerHTML = linkOrFolder.title;
+			paragraph.innerText = linkOrFolder.title;
 			anchor.appendChild(paragraph);
 		}
 	}
@@ -336,7 +361,7 @@ async function displayBookmarks(currentFolderId)
 
 			// Title
 			if (element = document.getElementById('currentFolder'))
-				element.innerHTML = currentFolderNode.title;
+				element.innerText = currentFolderNode.title;
 
 			// Back button
 			if (currentFolderNode.parentId) {
@@ -356,22 +381,6 @@ async function displayBookmarks(currentFolderId)
 }
 
 
-/**
- * @param {boolean} militaryTime
- */
-function drawTimeEverySecond(militaryTime)
-{
-	drawTime(militaryTime);
-
-	setTimeout(function() {
-		setInterval(function() {
-			drawTime(militaryTime);
-		}, 1000);
-		drawTime(militaryTime);
-	}, 1000 - new Date().getMilliseconds());
-}
-
-
 function focusOnBookmarks()
 {
 	const newFocus = document.querySelector('#row0 .favorite:first-child :first-child');
@@ -382,7 +391,7 @@ function focusOnBookmarks()
 
 function getFolderIdFromHash()
 {
-	const match = window.location.hash.match(/^#(\d+)$/);
+	const match = window.location.hash.match(/^#(.+)$/);
 	return match ? match[1] : getRootFolderId();
 }
 
@@ -417,14 +426,16 @@ function getPosition(linkOrFolder)
 
 function getRootFolderId()
 {
-	if (options.allowBookmarksBar && !options.allowOtherBookmarks && !options.allowMobileBookmarks)
-		return '1';
-	else if (!options.allowBookmarksBar && options.allowOtherBookmarks && !options.allowMobileBookmarks)
-		return '2';
-	else if (!options.allowBookmarksBar && !options.allowOtherBookmarks && options.allowMobileBookmarks)
-		return '3';
+	if (options.allowBookmarksMenu && !options.allowBookmarksBar && !options.allowOtherBookmarks && !options.allowMobileBookmarks)
+		return ID_BOOKMARKS_MENU;
+	else if (!options.allowBookmarksMenu && options.allowBookmarksBar && !options.allowOtherBookmarks && !options.allowMobileBookmarks)
+		return ID_BOOKMARKS_BAR;
+	else if (!options.allowBookmarksMenu && !options.allowBookmarksBar && options.allowOtherBookmarks && !options.allowMobileBookmarks)
+		return ID_OTHER_BOOKMARKS;
+	else if (!options.allowBookmarksMenu && !options.allowBookmarksBar && !options.allowOtherBookmarks && options.allowMobileBookmarks)
+		return ID_MOBILE_BOOKMARKS;
 	else
-		return '0';
+		return ID_ROOT_BOOKMARKS;
 }
 
 

@@ -3,12 +3,22 @@
 	"name": "Sunrise New Tab Page",
 	"short_name": "Sunrise NTP",
 	"description": "Beautiful and super customizable new tab page.",
-	"author": "Robby Bennett",
+	"author": "Rob Bennett",
 	"icons": {
 		"16": "/assets/iconGray16.png",
 		"32": "/assets/iconGray32.png",
 		"48": "/assets/iconGray48.png",
 		"128": "/assets/iconGray128.png"
+	},
+	"browser_specific_settings": {
+		"gecko": {
+			"id": "sunrise-new-tab-page@robbycbennett.github.io",
+			"data_collection_permissions": {
+				"required": [
+					"none"
+				]
+			}
+		}
 	},
 	"version": "3.3",
 	"action": {
